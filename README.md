@@ -8,7 +8,7 @@
 <h2 align="center">usage</h2>
 
 1. clone repo: `git clone https://github.com/VillainsRule/cproxy && cd cproxy`
-2. run once to create input file: `bun .`
+2. run once to create input file: `bun .` (bun required for `proxy` opt)
 3. add proxies to the supplied file in format `https://username:password@ip:port` (one per line)
 4. run the tester: `bun .`
 5. an output.txt will be generated with the working proxies
