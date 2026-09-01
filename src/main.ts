@@ -1,29 +1,52 @@
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
+import readline from 'node:readline';
 
-const inputPath = path.join(import.meta.dirname, '..', 'input.txt');
-if (!fs.existsSync(inputPath)) {
-    fs.writeFileSync(inputPath, '');
-    console.error(`add proxies to ${inputPath} and run again`);
-    process.exit(1);
-}
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
-const outputPath = path.join(import.meta.dirname, '..', 'output.txt');
-fs.writeFileSync(outputPath, '');
+(async () => {
+    const input = await new Promise<string[]>((r) => {
+        console.log('[cproxy] paste all proxies, then click enter 3 times:\n');
 
-const testProxies = fs.readFileSync(inputPath, 'utf8');
+        let input: string[] = [];
 
-await Promise.all(testProxies.split('\n').filter(e => e.trim().length > 1).map(async (proxy) => {
-    try {
-        const res = await fetch('https://clean.myip.wtf/json', { proxy: proxy.trim().replace('socks5h', 'http').replace('socks5', 'http'), tls: { rejectUnauthorized: false } });
-        const proxyUsername = proxy.split(':')[1];
-        if (res.status === 200) {
-            fs.appendFileSync(outputPath, proxy.trim() + '\n');
-            console.log(`[${res.status}] - ${proxyUsername} - ${(await res.json() as any)?.YourIPAddress}`);
-        } else console.log(`[${res.status}] - ${proxyUsername}`);
-    } catch (err: any) {
-        console.log(`[ERR] - ${proxy.split(':')[1]} - ${err.message}`);
-    }
-}));
+        rl.on('line', (line) => {
+            input.push(line);
 
-console.log(`\nvalid proxies saved to ${outputPath}`);
+            if (
+                input[input.length - 1] === '' &&
+                input[input.length - 2] === '' &&
+                input[input.length - 3] === ''
+            ) {
+                rl.close();
+                r(input.filter(e => e && e.trim().length > 10))
+            }
+        });
+    });
+
+    console.log('got it! validating now...\n');
+
+    const outputPath = path.join(os.tmpdir(), `cproxy-out-${Date.now()}.txt`);
+    fs.writeFileSync(outputPath, '');
+
+    await Promise.all(input.map(async (proxy) => {
+        try {
+            const res = await fetch('https://clean.myip.wtf/json', {
+                proxy: proxy.trim().replace('socks5h', 'http').replace('socks5', 'http'),
+                tls: { rejectUnauthorized: false }
+            });
+
+            const proxyUsername = proxy.split(':')[1];
+
+            if (res.status === 200) {
+                fs.appendFileSync(outputPath, proxy.trim() + '\n');
+                console.log(`[${res.status}] - ${proxyUsername} - ${(await res.json() as any)?.YourIPAddress}`);
+            } else console.log(`[${res.status}] - ${proxyUsername}`);
+        } catch (err: any) {
+            console.error(`[ERR] - ${proxy.split(':')[1]} - ${err.message}`);
+        }
+    }));
+
+    console.log(`\nvalid proxies saved to ${outputPath}`);
+})();
