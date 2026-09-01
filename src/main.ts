@@ -27,7 +27,7 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 
     console.log('got it! validating now...\n');
 
-    const outputPath = path.join(os.tmpdir(), `cproxy-out-${Date.now()}.txt`);
+    const outputPath = path.join(os.tmpdir(), 'cproxy-output.txt');
     fs.writeFileSync(outputPath, '');
 
     await Promise.all(input.map(async (proxy) => {
