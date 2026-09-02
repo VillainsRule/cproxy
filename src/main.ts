@@ -7,18 +7,14 @@ const rl = readline.createInterface({ input: process.stdin, output: process.stdo
 
 (async () => {
     const input = await new Promise<string[]>((r) => {
-        console.log('[cproxy] paste all proxies, then click enter 3 times:\n');
+        console.log('[cproxy] paste all proxies, then click enter twice:\n');
 
         let input: string[] = [];
 
         rl.on('line', (line) => {
             input.push(line);
 
-            if (
-                input[input.length - 1] === '' &&
-                input[input.length - 2] === '' &&
-                input[input.length - 3] === ''
-            ) {
+            if (input[input.length - 1] === '' && input[input.length - 2] === '') {
                 rl.close();
                 r(input.filter(e => e && e.trim().length > 10))
             }
