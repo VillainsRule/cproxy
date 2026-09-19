@@ -2,7 +2,7 @@
     "name": "cproxy",
     "main": "src/main.ts",
     "scripts": {
-        "build": "bun build --compile --bytecode --minify --outfile ~/cproxy ./src/main.ts && codesign --sign - ~/cproxy"
+        "build": "bun build --compile --bytecode --minify --outfile ~/sh/cproxy ./src/main.ts && codesign --sign - ~/sh/cproxy"
     },
     "devDependencies": {
         "@types/bun": "^1.3.11"
